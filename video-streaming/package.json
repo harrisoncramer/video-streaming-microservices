@@ -11,7 +11,8 @@
   "author": "Harrison Cramer <kingofcramers.dev@gmail.com> (https://github.com/harrisoncramer)",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongodb": "^4.1.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.12"
