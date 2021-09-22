@@ -1,6 +1,6 @@
 const express = require('express');
 const azure = require('azure-storage');
-const path = require('path');
+
 const app = express();
 
 const PORT = process.env.PORT;
@@ -21,6 +21,8 @@ app.get('/video', (req, res) => {
 
   /* Hard-coded container name for videos inside of storage */
   const containerName = 'videos';
+
+  console.log(`Request for ${containerName} container, path: ${videoPath}`);
 
   blobService.getBlobProperties(containerName, videoPath, (err, properties) => {
     if (err) {

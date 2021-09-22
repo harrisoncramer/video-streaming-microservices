@@ -1,6 +1,7 @@
 const express = require('express');
-const fs = require('fs');
+const http = require('http');
 const path = require('path');
+
 const app = express();
 
 if (!process.env.PORT) {
@@ -10,24 +11,25 @@ if (!process.env.PORT) {
 }
 
 const PORT = process.env.PORT;
-
-app.get('/', (req, res) => {
-  res.status(200).send('Hello world!');
-});
+const VIDEO_STORAGE_HOST = process.env.VIDEO_STORAGE_HOST;
+const VIDEO_STORAGE_PORT = parseInt(process.env.VIDEO_STORAGE_PORT);
 
 app.get('/video', (req, res) => {
-  const vidPath = './videos/zoom_troll.mp4';
-  fs.stat(vidPath, (err, stats) => {
-    if (err) {
-      res.sendStatus(500);
-      return;
+  const forwardRequest = http.request(
+    {
+      host: VIDEO_STORAGE_HOST,
+      port: VIDEO_STORAGE_PORT,
+      path: `/video?path=${req.query.path}`,
+      method: 'GET',
+      headers: req.headers,
+    },
+    (forwardResponse) => {
+      res.writeHeader(forwardResponse.statusCode, forwardResponse.headers);
+      forwardResponse.pipe(res);
     }
-    res.writeHead(200, {
-      'Content-Length': stats.size,
-      'Content-Type': 'video/mp4',
-    });
-    fs.createReadStream(vidPath).pipe(res);
-  });
+  );
+
+  req.pipe(forwardRequest);
 });
 
 app.listen(PORT, () => {
