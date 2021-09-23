@@ -28,7 +28,6 @@ MongoClient.connect(DB_HOST)
 
     app.get('/video', async (req, res) => {
       let record;
-      console.log(`Searching for ${req.query.id}`);
       try {
         record = await videos.findOne({ _id: new ObjectId(req.query.id) });
       } catch (err) {
