@@ -1,5 +1,20 @@
 version: '3'
 services:
+  history:
+    image: history
+    build:
+      context: ./history
+      dockerfile: Dockerfile-dev
+    container_name: history
+    volumes:
+      - /tmp/history/npm-cache:/root/.npm:z
+      - ./history/src:/usr/src/app/src/:z
+    ports:
+      - '4002:80'
+    environment:
+      - PORT=80
+      - NODE_ENV=development
+    restart: 'no'
   db:
     image: mongo:4.2.8
     container_name: db
