@@ -51,10 +51,10 @@ services:
     container_name: video-storage
     ports:
       - '4001:80'
+    env_file:
+      - .azure_keys # Contains AZURE_STORAGE_ACCOUNT_NAME and AZURE_STORAGE_KEY
     environment:
       - PORT=80
-      - STORAGE_ACCOUNT_NAME=20djoa9
-      - STORAGE_ACCESS_KEY=QG9+uomGuWE4FUV9DC12xluU2rNXnItSK7YzdVPU1NtC56D6jRIp+kzT9Rg4G30JKMMteui2+jYk69QSrPnbmw==
     restart: 'no'
     volumes:
       - /tmp/azure-storage/npm-cache:/root/.npm:z

@@ -1,4 +1,5 @@
 node_modules
+.azure_keys
 .env
 .DS_Store
 mongo/data

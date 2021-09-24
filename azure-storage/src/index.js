@@ -3,9 +3,10 @@ const azure = require('azure-storage');
 
 const app = express();
 
-const PORT = process.env.PORT;
-const STORAGE_ACCOUNT_NAME = process.env.STORAGE_ACCOUNT_NAME;
-const STORAGE_ACCESS_KEY = process.env.STORAGE_ACCESS_KEY;
+const { PORT, STORAGE_ACCOUNT_NAME, STORAGE_ACCESS_KEY } = process.env;
+if (!PORT || !STORAGE_ACCOUNT_NAME || !STORAGE_ACCESS_KEY) {
+  throw new Error('Please define environment variables!');
+}
 
 /* Creates HTTP connection to video service
  * EG: http://localhost:3003/video?path=my_video.mp4
