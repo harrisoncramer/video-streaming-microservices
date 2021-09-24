@@ -52,7 +52,7 @@ services:
     ports:
       - '4001:80'
     env_file:
-      - .azure_keys # Contains AZURE_STORAGE_ACCOUNT_NAME and AZURE_STORAGE_KEY
+      - .azure_keys # Contains STORAGE_ACCOUNT_NAME and STORAGE_KEY
     environment:
       - PORT=80
     restart: 'no'
