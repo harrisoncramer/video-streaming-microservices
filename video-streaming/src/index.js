@@ -5,17 +5,29 @@ const { MongoClient, ObjectId } = require('mongodb');
 
 const app = express();
 
-if (!process.env.PORT) {
-  throw new Error(
-    'Please specify the port number for the HTTP server with the environment variable PORT.'
-  );
+const { PORT, VIDEO_STORAGE_HOST, VIDEO_STORAGE_PORT, DB_HOST, DB_NAME } = process.env;
+if (!PORT || !VIDEO_STORAGE_PORT || !VIDEO_STORAGE_HOST || !DB_HOST || !DB_NAME) {
+  throw new Error('Please set environment variables!');
+  console.log();
 }
 
-const PORT = process.env.PORT;
-const VIDEO_STORAGE_HOST = process.env.VIDEO_STORAGE_HOST;
-const VIDEO_STORAGE_PORT = parseInt(process.env.VIDEO_STORAGE_PORT);
-const DB_HOST = process.env.DB_HOST;
-const DB_NAME = process.env.DB_NAME;
+function sendViewedMessage(videoPath) {
+  const postOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const requestBody = { videoPath };
+  const request = http.request('http://history/viewed', postOptions);
+
+  request.on('close', () => {});
+  request.on('error', () => {});
+
+  request.write(JSON.stringify(requestBody));
+  request.end();
+}
 
 MongoClient.connect(DB_HOST)
   .then((client) => {
@@ -42,10 +54,12 @@ MongoClient.connect(DB_HOST)
         return;
       }
 
+      sendViewedMessage(record.videoPath);
+
       const forwardRequest = http.request(
         {
           host: VIDEO_STORAGE_HOST,
-          port: VIDEO_STORAGE_PORT,
+          port: parseInt(VIDEO_STORAGE_PORT),
           path: `/video?path=${record.videoPath}`,
           method: 'GET',
           headers: req.headers,
