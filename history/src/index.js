@@ -22,29 +22,19 @@ async function connectRabbit() {
   return messagingConnection.createChannel();
 }
 
-/* Setup express application */
-function server(videosCollection) {
+/* Setup express application. This keeps NodeJS from exiting */
+function server() {
   const app = express();
-  app.use(express.json());
-
-  app.post('/viewed', async (req, res) => {
-    const { videoPath } = req.body;
-    try {
-      await videosCollection.insertOne({ videoPath });
-      console.log(`Added video ${videoPath} to history.`);
-      res.sendStatus(200);
-    } catch (err) {
-      console.error(`Error adding video ${videoPath} to history.`);
-      console.error(err);
-      res.sendStatus(500);
-    }
-  });
-
   app.listen(parseInt(PORT), () => {
     console.log('History microservice online.');
   });
 }
 
+/*
+ * This function connects to MongoDB, connects to RabbitMQ, and
+ * processes the "viewed" queue. The microservice pulls from that
+ * queue and writes the data to the database.
+ */
 async function main() {
   let videosCollection;
   try {
@@ -75,14 +65,9 @@ async function main() {
     throw err;
   }
 
-  server(videosCollection);
+  server();
 }
 
-/*
- * This function connects to MongoDB, connects to RabbitMQ, and
- * starts up our Express server. When we recieve a request to /viewed on
- * our Express server, we insert
- * */
 main().catch((err) => {
   console.error('An error occured.');
   console.error(err);
