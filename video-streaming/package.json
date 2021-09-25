@@ -12,8 +12,10 @@
   "author": "Harrison Cramer <kingofcramers.dev@gmail.com> (https://github.com/harrisoncramer)",
   "license": "MIT",
   "dependencies": {
+    "amqplib": "^0.8.0",
     "express": "^4.17.1",
-    "mongodb": "^4.1.2"
+    "mongodb": "^4.1.2",
+    "wait-port": "^0.2.9"
   },
   "devDependencies": {
     "nodemon": "^2.0.12"

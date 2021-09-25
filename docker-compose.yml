@@ -1,5 +1,24 @@
 version: '3'
 services:
+  video-streaming:
+    image: video-streaming
+    build:
+      context: ./video-streaming
+      dockerfile: Dockerfile-dev
+    container_name: video-streaming
+    ports:
+      - '4000:80'
+    environment:
+      - PORT=80
+      - DB_HOST=mongodb://db:27017
+      - DB_NAME=video-streaming
+      - VIDEO_STORAGE_HOST=video-storage
+      - VIDEO_STORAGE_PORT=80
+      - RABBIT=amqp://guest:guest@rabbit:5672
+    restart: 'no'
+    volumes:
+      - /tmp/video-streaming/npm-cache:/root/.npm:z
+      - ./video-streaming/src:/usr/src/app/src:z
   history:
     image: history
     build:
@@ -16,33 +35,8 @@ services:
       - NODE_ENV=development
       - DB_HOST=mongodb://db:27017
       - DB_NAME=video-history
+      - RABBIT=amqp://guest:guest@rabbit:5672
     restart: 'no'
-  db:
-    image: mongo:4.2.8
-    container_name: db
-    ports:
-      - '27017:27017' # For interactions w/ local machine
-    restart: always
-    volumes:
-      - ./mongo/data:/data/db # Keep data between restarts
-  video-streaming:
-    image: video-streaming
-    build:
-      context: ./video-streaming
-      dockerfile: Dockerfile-dev
-    container_name: video-streaming
-    ports:
-      - '4000:80'
-    environment:
-      - PORT=80
-      - DB_HOST=mongodb://db:27017
-      - DB_NAME=video-streaming
-      - VIDEO_STORAGE_HOST=video-storage
-      - VIDEO_STORAGE_PORT=80
-    restart: 'no'
-    volumes:
-      - /tmp/video-streaming/npm-cache:/root/.npm:z
-      - ./video-streaming/src:/usr/src/app/src:z
   azure-storage:
     image: azure-storage
     build:
@@ -52,10 +46,28 @@ services:
     ports:
       - '4001:80'
     env_file:
-      - .azure_keys # Contains AZURE_STORAGE_ACCOUNT_NAME and AZURE_STORAGE_KEY
+      - .azure_keys # Contains STORAGE_ACCOUNT_NAME and STORAGE_KEY
     environment:
       - PORT=80
     restart: 'no'
     volumes:
       - /tmp/azure-storage/npm-cache:/root/.npm:z
       - ./azure-storage/src:/usr/src/app/src:z
+  db:
+    image: mongo:4.2.8
+    container_name: db
+    ports:
+      - '27017:27017' # For interactions w/ local machine
+    restart: always
+    volumes:
+      - ./mongo/data:/data/db # Keep data between restarts
+  rabbit:
+    image: rabbitmq:3.8.1-management # Has built-in dashboard at locahost:15672
+    container_name: rabbit
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    expose:
+      - '5672'
+      - '15672'
+    restart: always
