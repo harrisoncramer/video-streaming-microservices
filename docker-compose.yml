@@ -34,6 +34,7 @@ services:
       - NODE_ENV=development
       - DB_HOST=mongodb://db:27017
       - DB_NAME=video-history
+      - RABBIT=amqp://guest:guest@rabbit:5672
     restart: 'no'
   azure-storage:
     image: azure-storage
@@ -60,7 +61,7 @@ services:
     volumes:
       - ./mongo/data:/data/db # Keep data between restarts
   rabbit:
-    image: rabbitmq:3.8.1-management
+    image: rabbitmq:3.8.1-management # Has built-in dashboard at locahost:15672
     container_name: rabbit
     ports:
       - '5672:5672'
