@@ -38,32 +38,21 @@ function server() {
 async function main() {
   let videosCollection;
   try {
-    videosCollection = await connectToMongoDB('video-history');
+    videosCollection = await connectToMongoDB('recommendations');
   } catch (err) {
     console.error('Could not connect to MongoDB.');
     throw err;
   }
 
-  /* Callback for consuming RabbitMQ messages */
-  async function consumeViewedMessage(msg) {
-    const parsedMessage = JSON.parse(msg.content.toString());
-    try {
-      await videosCollection.insertOne({ videoPath: parsedMessage.videoPath });
-      await messageChannel.ack(msg);
-    } catch (err) {
-      console.error('Could not insert message into DB.');
-      throw err;
-    }
-  }
-
   /* Create "viewed" exchange for all microservices, and anonymous queue for this microservice */
-  let messageChannel;
   try {
-    messageChannel = await connectRabbit();
+    let messageChannel = await connectRabbit();
     await messageChannel.assertExchange('viewed', 'fanout');
     const { queue } = await messageChannel.assertQueue('', { exclusive: true });
     await messageChannel.bindQueue(queue, 'viewed', '');
-    await messageChannel.consume(queue, consumeViewedMessage);
+    await messageChannel.consume(queue, (message) => {
+      console.log('I got a message');
+    });
   } catch (err) {
     console.error(`Could not create queue ${queue} and bind it it to viewed exchange`);
     throw err;

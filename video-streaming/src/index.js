@@ -21,13 +21,16 @@ async function connectToMongoDB(collectionName) {
 /* Create connection channel to RabbitMQ */
 async function connectRabbit() {
   const messagingConnection = await amqplib.connect(RABBIT);
-  return messagingConnection.createChannel();
+  const messageChannel = await messagingConnection.createChannel();
+  await messageChannel.assertExchange('viewed', 'fanout');
+  return messageChannel;
 }
 
 function sendViewedMessage(messageChannel, videoPath) {
   const msg = { videoPath };
   const jsonMessage = JSON.stringify(msg);
-  messageChannel.publish('', 'viewed', Buffer.from(jsonMessage));
+  messageChannel.publish('viewed', '', Buffer.from(jsonMessage));
+  console.log('Viewed published.');
 }
 
 async function main() {
