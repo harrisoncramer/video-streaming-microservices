@@ -30,7 +30,6 @@ function sendViewedMessage(messageChannel, videoPath) {
   const msg = { videoPath };
   const jsonMessage = JSON.stringify(msg);
   messageChannel.publish('viewed', '', Buffer.from(jsonMessage));
-  console.log('Viewed published.');
 }
 
 async function main() {
